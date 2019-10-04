@@ -1,2 +1,2 @@
 # docker-tools
-Dockers for Docker and Docker EE
+Scripts and tools for Docker and Docker EE
