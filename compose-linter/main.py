@@ -67,6 +67,11 @@ def get_service_paths(cy, path):
 # ex: {"path": ['services', 'web', 'deploy', 'restart_policy', 'max_attempts'], "value": "3"}    
 
 def get_values(cy, path):
+    """ Get value for each path from the input compose file.
+    :param cy: Original docker-compose file
+    :param path: Path to retrieve the docker file
+    :return: dict ex: {"path": ['services', 'web', 'deploy', 'restart_policy', 'max_attempts'], "value": "3"}
+    """
     service_paths = get_service_paths(cy, path)
     values = []
     for service_path in service_paths:
@@ -144,4 +149,5 @@ def main():
     if "OUTPUT_FILE" in os.environ:
         with open(os.getenv("OUTPUT_FILE"), 'w') as yaml_file:
             yaml.dump(new_yaml, yaml_file, default_flow_style=False, Dumper=noalias_dumper)
+
 main()
