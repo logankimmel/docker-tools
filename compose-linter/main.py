@@ -145,6 +145,8 @@ def main():
     new_yaml = check_values(cy, values)
     noalias_dumper = yaml.dumper.SafeDumper
     noalias_dumper.ignore_aliases = lambda self, data: True
+    
+    print("NEW COMPOSE FILE:\n===============================\n")
     print(yaml.dump(new_yaml, default_flow_style=False, Dumper=noalias_dumper))
     
     if "OUTPUT_FILE" in os.environ:
