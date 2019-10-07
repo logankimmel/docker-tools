@@ -129,7 +129,7 @@ def check_values(cy, values):
         max_value = values[option]["default"]
         found_values = get_values(cy, values[option]["path"])
         for found_value in found_values:
-            if int(re.sub('[^0-9]','',str(found_value["value"]))) > int(re.sub('[^0-9]','',str(max_value))):
+            if float(re.sub('[^0-9,.]','',str(found_value["value"]))) > float(re.sub('[^0-9,.]','',str(max_value))):
                 print("Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
                 new_yaml = set_value(new_yaml, found_value, max_value)
     return new_yaml
