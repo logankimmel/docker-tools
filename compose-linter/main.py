@@ -4,6 +4,7 @@ import os
 import copy
 import re
 import collections
+import sys
 
 MAX_VALUES = {
     "CPU_LIMIT": {
@@ -81,8 +82,8 @@ def get_values(cy, path):
                 try: 
                     spec[service_path[i]]
                 except KeyError:
-                    print("Key: %s not found" %(service_path[i]))
-                    continue
+                    print("Key: %s not found" %(".".join(service_path)))
+                    sys.exit(1)
                 values.append({"path": service_path, "value": spec[service_path[i]]})
             else:
                 try: 
