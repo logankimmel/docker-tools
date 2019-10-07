@@ -18,20 +18,19 @@ MAX_VALUES = {
         "default": "0",
         "path": "services.*.deploy.restart_policy.max_attempts"
     },
-    "MAX_REPLICA": {
+    "MAX_REPLICAS": {
         "default": "12",
         "path": "services.*.deploy.replicas"
     }
 }
 
 def set_defaults():
-    values = {}
+    values = copy.deepcopy(MAX_VALUES)
     for key in MAX_VALUES:
         if key in os.environ:
-            values[key] = os.getenv(key)
+            values[key]["default"] = os.getenv(key)
         else:
-            values[key] = MAX_VALUES[key]["default"]
-
+            values[key]["default"] = MAX_VALUES[key]["default"]
     print("Default values: %s" %(values))
     return values
         
@@ -121,12 +120,12 @@ def dict_merge(dct, merge_dct):
 
 def check_values(cy, values):
     new_yaml = copy.deepcopy(cy)
-    for option in MAX_VALUES:
-        max_value = MAX_VALUES[option]["default"]
-        found_values = get_values(cy, MAX_VALUES[option]["path"])
+    for option in values:
+        max_value = values[option]["default"]
+        found_values = get_values(cy, values[option]["path"])
         for found_value in found_values:
-            print("Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
-            if re.sub('[^0-9]','',str(found_value["value"])) > re.sub('[^0-9]','',max_value):
+            if int(re.sub('[^0-9]','',str(found_value["value"]))) > int(re.sub('[^0-9]','',str(max_value))):
+                print("Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
                 new_yaml = set_value(new_yaml, found_value, max_value)
     return new_yaml
 
@@ -142,6 +141,7 @@ def main():
     noalias_dumper.ignore_aliases = lambda self, data: True
     print(yaml.dump(new_yaml, default_flow_style=False, Dumper=noalias_dumper))
     
-
-
+    if "OUTPUT_FILE" in os.environ:
+        with open(os.getenv("OUTPUT_FILE"), 'w') as yaml_file:
+            yaml.dump(new_yaml, yaml_file, default_flow_style=False, Dumper=noalias_dumper)
 main()
