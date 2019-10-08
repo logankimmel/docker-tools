@@ -15,7 +15,7 @@ This takes a Docker Compose yaml file as input and makes sure values aren't set 
         "path": "services.*.deploy.resources.limits.cpus"
     },
     "MEM_LIMIT": {
-        "default": "2000m",
+        "default": "1000m",
         "path": "services.*.deploy.resources.limits.memory"
     },
     "MAX_RETRY": {
@@ -24,7 +24,8 @@ This takes a Docker Compose yaml file as input and makes sure values aren't set 
     },
     "MAX_REPLICAS": {
         "default": "12",
-        "path": "services.*.deploy.replicas"
+        "path": "services.*.deploy.replicas",
+        "required": True # This signifies that the value is required to exist in the compose file
     }
 }
 ```
