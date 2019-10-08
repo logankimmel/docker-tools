@@ -45,3 +45,6 @@ cat ../stack_example.yml | docker run -i --rm \
     -e MAX_REPLICAS=4 -v /tmp/output:/data -e OUTPUT_FILE=/data/output.yml \
     compose-linter -
 ```
+
+### Debugging
+The project has been configured for Visual Studio Code Remote Containers. In order to use the debugging console, provide a docker-compose file called `stack.yml` in this directory.

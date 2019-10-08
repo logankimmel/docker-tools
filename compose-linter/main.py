@@ -70,14 +70,20 @@ def set_defaults():
     print("Default values: %s\n\n" %(values))
     return values
 
-def set_compose(compose):
+def set_compose():
     print("Parsing Compose file:")
-    print(compose)
+    if "INPUT_FILE" in os.environ:
+        with open(os.getenv("INPUT_FILE"), 'r') as file:
+            compose_file = file.read()
+    else:
+        for line in fileinput.input():
+                compose_file += line
+                pass
+    print(compose_file)
     try:
-        cy = yaml.safe_load(compose)
+        cy = yaml.safe_load(compose_file)
     except yaml.YAMLError as exc:
-        print(exc)
-    
+        print(exc)    
     return cy
 
 def get_service_paths(cy, path):
@@ -135,6 +141,8 @@ def get_value(cy, service_path):
                 value = None
                 return value
             spec = spec[service_path[i]]
+        if spec == None:
+            return None
 
 def set_value(cy, path, new_value):
     spec = {}
@@ -213,11 +221,7 @@ def return_yaml(new_yaml):
             yaml.dump(new_yaml, yaml_file, default_flow_style=False, Dumper=noalias_dumper)
 
 def main():
-    compose_file = ''
-    for line in fileinput.input():
-            compose_file += line
-            pass
-    cy = set_compose(compose_file)
+    cy = set_compose()
     values = set_defaults()
     new_yaml = check_values(cy, values)
     new_yaml = set_reservations(new_yaml)
