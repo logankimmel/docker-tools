@@ -54,7 +54,6 @@ def set_reservations(compose_yaml):
             link_path.pop(2)
             link_value = get_value(compose_yaml, link_path)
             if v.get("unit", False) == "memory":
-                m_units = unit_converter(link_value, "memory")
                 res_value = str(unit_converter(link_value, "memory")/2) + "M"
             else:
                 res_value = float(link_value)/2

@@ -1,5 +1,5 @@
 # Docker Compose Linter
-This takes a Docker Compose yaml file as input and makes sure values aren't set greater than the defined max.
+This takes a Docker Compose yaml file as input and makes sure values aren't set greater than the defined max. It will also set reservations to half of the defined limit for the corresponding value.
 
 ### Supported Max Values
 * CPU_LIMIT
