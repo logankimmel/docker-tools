@@ -76,6 +76,7 @@ def set_compose():
         with open(os.getenv("INPUT_FILE"), 'r') as file:
             compose_file = file.read()
     else:
+        compose_file = ""
         for line in fileinput.input():
                 compose_file += line
                 pass
@@ -87,6 +88,12 @@ def set_compose():
     return cy
 
 def get_service_paths(cy, path):
+    """
+    Returns all the paths when a wildcard is used.
+    :param {} cy: compose file input
+    :param "" path: Path string, ex: "services.*.deploy"
+    :return [[]]: Returns list of lists Ex: [["services"."web"."deploy"],["services"."db"."deploy"]]
+    """
     service_paths = []
     keys = path.split(".")
     if keys[1] == "*":
@@ -104,14 +111,12 @@ def get_service_paths(cy, path):
         service_paths.append(service_path)
     return service_paths
     
-# get_values retuns a list of dicts for each path and the value
-# ex: {"path": ['services', 'web', 'deploy', 'restart_policy', 'max_attempts'], "value": "3"}    
-
 def get_values(cy, option):
-    """ Get value for each path from the input compose file.
-    :param cy: Original docker-compose file
-    :param path: Path to retrieve the docker file
-    :return: dict ex: {"path": ['services', 'web', 'deploy', 'restart_policy', 'max_attempts'], "value": "3"}
+    """
+    Returns all the values for a given option, ex: MEM_LIMIT
+    :param {} cy: compose file as dict
+    :param {} option: The option to get the values for
+    :return [{}]: List of dicts, [{"path":["service","path"],"value":"3"}]
     """
     service_paths = get_service_paths(cy, option["path"])
     values = []
@@ -125,6 +130,11 @@ def get_values(cy, option):
     return values
 
 def get_value(cy, service_path):
+    """ Get value for a pathg from the input compose file.
+    :param cy: Original docker-compose file
+    :param path: Path to retrieve the docker file
+    :return: dict ex: {"path": ['services', 'web', 'deploy', 'restart_policy', 'max_attempts'], "value": "3"}
+    """
     spec = copy.deepcopy(cy)
     for i in range(0, len(service_path)):
         if i == len(service_path) - 1:
@@ -145,6 +155,11 @@ def get_value(cy, service_path):
             return None
 
 def set_value(cy, path, new_value):
+    """ Sets the value in the compose file for a given path
+    :param {} cy: Compose file to update
+    :param [] path: Path to value to update Ex: ["services","web","replicas"]
+    :param "" new_value: Value to set
+    """
     spec = {}
     for i, e in reversed(list(enumerate(path))):
         builder = {}
@@ -184,18 +199,29 @@ def unit_converter(val, unit):
     return float(re.sub('[^0-9,.]','',str(val)))
 
 def to_mb(val):
+    """
+    Converts a memory string value from the compose file to
+    a Mb memory string.
+    :param string val:
+    :return string:
+    """
     u = re.sub('[0-9]','', str(val))
     if u.upper() == "M":
         return val
     num = float(re.sub('[^0-9]','',str(val)))
     return str(num*1024**1) + "M"
 
-def check_values(cy, values):
+def check_values(cy, options):
+    """Checks the input docker compose file for the values for the set of options.
+    If the values are over the defined maximum. They will be set to the max
+    :param {} cy: The input compose file
+    :options {}: The options to check values for
+    """
     new_yaml = copy.deepcopy(cy)
-    for option in values:
-        max_value = values[option]["default"]
-        found_values = get_values(cy, values[option])
-        unit = values[option].get("unit", None)
+    for option in options:
+        max_value = options[option]["default"]
+        found_values = get_values(cy, options[option])
+        unit = options[option].get("unit", None)
         print(found_values)
         for found_value in found_values:
             if found_value["value"] == None:
