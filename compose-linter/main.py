@@ -60,6 +60,33 @@ def set_reservations(compose_yaml):
             compose_yaml = set_value(compose_yaml, path, res_value)
     return compose_yaml
 
+def check_env_vars(compose_yaml):
+    """ Checks for the existence of Environment Variables if "REQ_ENV" is set
+    :param compose_yaml: Current compose yaml
+    """
+    if "REQ_ENV" not in os.environ:
+        return compose_yaml
+
+    fail_toggle = False
+    req_envs = os.getenv("REQ_ENV").split(",")
+    service_paths = get_service_paths(compose_yaml, "services.*.environment")
+    # Loop on required environment variables
+    for env in req_envs:
+        # Loop on the path array: i.e. ["services","web","environment"]
+        for service_path in service_paths:
+            try:
+                env_vars = compose_yaml["services"][service_path[1]]["environment"]
+            except KeyError:
+                fail_toggle = True
+                print("Required Environment Variable: %s missing for service %s" %(env, service_path[1]))
+                continue
+            if env not in env_vars:
+                print("Required Environment Variable: %s missing for service %s" %(env, service_path[1]))
+                fail_toggle = True
+
+    if fail_toggle:
+        sys.exit(1)
+
 def set_defaults():
     values = copy.deepcopy(MAX_VALUES)
     for key in MAX_VALUES:
@@ -251,6 +278,7 @@ def main():
     values = set_defaults()
     new_yaml = check_values(cy, values)
     new_yaml = set_reservations(new_yaml)
+    check_env_vars(new_yaml)
     return_yaml(new_yaml)
 
 main()

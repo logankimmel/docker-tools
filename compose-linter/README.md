@@ -4,6 +4,7 @@ This takes a Docker Compose yaml file as input and makes sure values aren't set 
 ### Features:
 * Logic for multiple services
 * Logic for memory units
+* Logic for ensuring existence of environment variables
 
 ### Supported Max Values
 * CPU_LIMIT
@@ -45,6 +46,10 @@ cat ../stack_example.yml | docker run -i --rm \
     -e MAX_REPLICAS=4 -v /tmp/output:/data -e OUTPUT_FILE=/data/output.yml \
     compose-linter -
 ```
+
+#### Environment Variable Check
+To check for the existence of environment variables in each service use `REQ_ENV` with a comma-separated list:
+` docker run -i --rm -e REQ_ENV=APPD,ORACLE_DB ...`
 
 ### Debugging
 The project has been configured for Visual Studio Code Remote Containers. In order to use the debugging console, provide a docker-compose file called `stack.yml` in this directory.
