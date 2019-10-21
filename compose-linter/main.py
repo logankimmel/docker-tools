@@ -95,7 +95,7 @@ def check_healthcheck(compose_yaml):
     service_paths = get_service_paths(compose_yaml, "services.*.healthcheck")
     for service_path in service_paths:
         try:
-            healthcheck = compose_yaml["services"][service_path[1]]["healthcheck"]
+            compose_yaml["services"][service_path[1]]["healthcheck"]
         except KeyError:
             fail_toggle = True
             print("Healcheck missing for service: %s" %(service_path[1]))
