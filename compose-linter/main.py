@@ -87,6 +87,22 @@ def check_env_vars(compose_yaml):
     if fail_toggle:
         sys.exit(1)
 
+def check_healthcheck(compose_yaml):
+    """ Ensures a healthcheck is defined for all services
+    :param compose_yaml: Current compose yaml
+    """
+    fail_toggle = False
+    service_paths = get_service_paths(compose_yaml, "services.*.healthcheck")
+    for service_path in service_paths:
+        try:
+            healthcheck = compose_yaml["services"][service_path[1]]["healthcheck"]
+        except KeyError:
+            fail_toggle = True
+            print("Healcheck missing for service: %s" %(service_path[1]))
+            continue
+    if fail_toggle:
+        sys.exit(1)
+
 def set_defaults():
     values = copy.deepcopy(MAX_VALUES)
     for key in MAX_VALUES:
@@ -279,6 +295,7 @@ def main():
     new_yaml = check_values(cy, values)
     new_yaml = set_reservations(new_yaml)
     check_env_vars(new_yaml)
+    check_healthcheck(new_yaml)
     return_yaml(new_yaml)
 
 main()

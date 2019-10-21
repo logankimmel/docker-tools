@@ -1,5 +1,5 @@
 # Docker Compose Linter
-This takes a Docker Compose yaml file as input and makes sure values aren't set greater than the defined max. It will also set reservations to half of the defined limit for the corresponding value.
+This takes a Docker Compose yaml file as input and checks for various parameters. It makes sure values aren't set greater than the defined max. It will also set reservations to half of the defined limit for the corresponding value. The linter will exit with an error if healthchecks are not defined.
 
 ### Features:
 * Logic for multiple services
