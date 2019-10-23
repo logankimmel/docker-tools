@@ -13,6 +13,7 @@ while IFS= read -r row ; do
     reponame=$(echo "$row" | jq -r .name)
     tag_headers=$(curl -s -I -u admin:$TOKEN -X GET "https://$DTR_HOSTNAME/api/v0/repositories/${namespace}/${reponame}/tags?pageSize=1&count=true")
     tag_count=$(echo "$tag_headers" | grep 'X-Resource-Count:' | sed 's/[^0-9]*//g')
+    echo "Org: ${namespace}, Repo: ${reponame}, Tags: ${tag_count}"
     tags=$(($tags + $tag_count))
 done <<< "$repo_list"
 
