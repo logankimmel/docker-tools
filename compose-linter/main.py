@@ -78,10 +78,10 @@ def check_env_vars(compose_yaml):
                 env_vars = compose_yaml["services"][service_path[1]]["environment"]
             except KeyError:
                 fail_toggle = True
-                print("Required Environment Variable: %s missing for service %s" %(env, service_path[1]))
+                print("# Required Environment Variable: %s missing for service %s" %(env, service_path[1]))
                 continue
             if env not in env_vars:
-                print("Required Environment Variable: %s missing for service %s" %(env, service_path[1]))
+                print("# Required Environment Variable: %s missing for service %s" %(env, service_path[1]))
                 fail_toggle = True
 
     if fail_toggle:
@@ -98,7 +98,7 @@ def check_healthcheck(compose_yaml):
             compose_yaml["services"][service_path[1]]["healthcheck"]
         except KeyError:
             fail_toggle = True
-            print("Healcheck missing for service: %s" %(service_path[1]))
+            print("# Healcheck missing for service: %s" %(service_path[1]))
             continue
     if fail_toggle:
         sys.exit(1)
@@ -110,11 +110,11 @@ def set_defaults():
             values[key]["default"] = os.getenv(key)
         else:
             values[key]["default"] = MAX_VALUES[key]["default"]
-    print("Default values: %s\n\n" %(values))
+    print("# Default values: %s\n\n" %(values))
     return values
 
 def set_compose():
-    print("Parsing Compose file:")
+    print("# Parsing Compose file:")
     if "INPUT_FILE" in os.environ:
         with open(os.getenv("INPUT_FILE"), 'r') as file:
             compose_file = file.read()
@@ -123,11 +123,11 @@ def set_compose():
         for line in fileinput.input():
                 compose_file += line
                 pass
-    print(compose_file)
     try:
         cy = yaml.safe_load(compose_file)
     except yaml.YAMLError as exc:
         print(exc)    
+    print("# " + str(cy))
     return cy
 
 def get_service_paths(cy, path):
@@ -167,7 +167,7 @@ def get_values(cy, option):
         value = get_value(cy,service_path)
         required = option.get("required", False)
         if value == None and required:
-            print("Key: %s not found" %(".".join(service_path)))
+            print("# Key: %s not found" %(".".join(service_path)))
             sys.exit(1)
         values.append({"path":service_path, "value":value})
     return values
@@ -265,16 +265,16 @@ def check_values(cy, options):
         max_value = options[option]["default"]
         found_values = get_values(cy, options[option])
         unit = options[option].get("unit", None)
-        print(found_values)
+        print("# " + str(found_values))
         for found_value in found_values:
             if found_value["value"] == None:
-                print("Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
+                print("# Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
                 new_yaml = set_value(new_yaml, found_value["path"], max_value)
             else:
                 m_val = unit_converter(max_value, unit) 
                 f_val = unit_converter(found_value["value"], unit)
                 if f_val > m_val:
-                    print("Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
+                    print("# Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
                     new_yaml = set_value(new_yaml, found_value["path"], max_value)
     return new_yaml
 
@@ -282,7 +282,8 @@ def return_yaml(new_yaml):
     noalias_dumper = yaml.dumper.SafeDumper
     noalias_dumper.ignore_aliases = lambda self, data: True
     
-    print("\nNEW COMPOSE FILE:\n===============================\n")
+    print("\n# NEW COMPOSE FILE:\n# ===============================\n")
+    print("---")
     print(yaml.dump(new_yaml, default_flow_style=False, Dumper=noalias_dumper))
     
     if "OUTPUT_FILE" in os.environ:
