@@ -207,7 +207,7 @@ def set_value(cy, path, new_value):
     for i, e in reversed(list(enumerate(path))):
         builder = {}
         if i == len(path) - 1:
-            spec[e] = new_value
+            spec[e] = str(new_value)
         else:
             builder[e] = spec
             spec = builder
