@@ -229,17 +229,31 @@ def dict_merge(dct, merge_dct):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
-    return dct   
+    return dct
+
+def get_true_val(val):
+    """If a value is an environment variable,
+    return the variable value
+    """
+    if not str(val).startswith("$"):
+        return val
+    v = re.sub('[$,{,}]','',val)
+    e_var = os.getenv(v)
+    if e_var == None:
+        print("Environment var %s not set" % (var))
+        exit(1)
+    return os.getenv(v)
 
 def unit_converter(val, unit):
     """ Converts Unit to a float for comparison.
     :param string val: value to be converted
     :return: float
     """
+    eval_val = get_true_val(val)
     # If memory, convert to Mb
     if unit == "memory":
-        val = to_mb(val)
-    return float(re.sub('[^0-9,.]','',str(val)))
+        val = to_mb(eval_val)
+    return float(re.sub('[^0-9,.]','',str(eval_val)))
 
 def to_mb(val):
     """
@@ -265,7 +279,6 @@ def check_values(cy, options):
         max_value = options[option]["default"]
         found_values = get_values(cy, options[option])
         unit = options[option].get("unit", None)
-        print("# " + str(found_values))
         for found_value in found_values:
             if found_value["value"] == None:
                 print("# Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
