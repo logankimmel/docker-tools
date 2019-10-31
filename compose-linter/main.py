@@ -238,9 +238,11 @@ def get_true_val(val):
     if not str(val).startswith("$"):
         return val
     v = re.sub('[$,{,}]','',val)
+    if v.startswith("bamboo"):
+        v = re.sub('bamboo_inject_','',v)
     e_var = os.getenv(v)
     if e_var == None:
-        print("Environment var %s not set" % (var))
+        print("Environment var %s not set" %(val))
         exit(1)
     return os.getenv(v)
 
@@ -287,7 +289,7 @@ def check_values(cy, options):
                 m_val = unit_converter(max_value, unit) 
                 f_val = unit_converter(found_value["value"], unit)
                 if f_val > m_val:
-                    print("# Found values: %s, max value: %s for %s" %(found_value["value"], max_value, option))
+                    print("# Found values: %s, max value: %s for %s" %(f_val, m_val, option))
                     new_yaml = set_value(new_yaml, found_value["path"], max_value)
     return new_yaml
 
